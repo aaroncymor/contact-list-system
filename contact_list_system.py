@@ -138,6 +138,16 @@ while exit == 0:
 			print display_all_contacts(cont_list)
 			continue
 		elif option == option_list[2] or option == option_list[3]: #Add
+			print "Please type in your name, address, and phone number."
+			print "**Please take note that name and address is required.\n"
+			
+			cont_name = raw_input("Name: ")
+			cont_address = raw_input("Address: ")
+			cont_phone = raw_input("Phone Number: ")
+			
+			print add_contact(cont_list,cont_name,cont_address,cont_phone)
+			print display_all_contacts(cont_list)
+			
 			continue
 		elif option == option_list[4] or option == option_list[5]: #Update
 			continue
