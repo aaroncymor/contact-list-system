@@ -1,3 +1,6 @@
+"""
+=========================START OF CONTACT LIST FUNCTIONS==================
+"""
 #This will read the file and generate the list and append it to another list
 def generate_contact_list(filename):
 	txt = open(filename).read()
@@ -112,7 +115,7 @@ def delete_contact(contact_list,sub_list_index):
 	return message
 
 """
-==================END OF FUNCTIONS=================
+==================END OF CONTACT LIST SYSTEM FUNCTIONS=================
 """
 
 from sys import argv
@@ -121,6 +124,7 @@ script, filename = argv
 prompt = "Display [D] | Add [A] | Update [U] | Delete [E] | Exit [X] "
 exit = 0
 
+#This will open the file and generate a list which will contain the sub-lists of contacts
 cont_list = generate_contact_list(filename)
 
 while exit == 0:
@@ -130,6 +134,8 @@ while exit == 0:
 	
 	if option in option_list:
 		if option == option_list[0] or option == option_list[1]: #Display
+			#Contact Lists will be displayed in command prompt
+			print display_all_contacts(cont_list)
 			continue
 		elif option == option_list[2] or option == option_list[3]: #Add
 			continue
@@ -152,5 +158,3 @@ while exit == 0:
 		print "Display [D] | Add [A] | Update [U] | Delete [E] | Exit [X]"
 		print "===========================================================\n"
 		continue
-
-
