@@ -29,16 +29,17 @@ def display_sub_lists(contact_list,sub_list_index):
 	display_text = ''
 	
 	if count_sub_list_index(sub_list_index) > 0:
-		for index in sub_list_index:
+		for index in range(len(sub_list_index)):
+			display_text += "\n[" + str(index + 1) + "]" 
 			for item in range(len(contact_list[index])):
 				if item == 0:
-					display_text += "\nName: " + contact_list[index][item]
+					display_text += "\nName: " + contact_list[sub_list_index[index]][item]
 				if item == 1:
-					display_text += "\nAddress: " + contact_list[index][item]
+					display_text += "\nAddress: " + contact_list[sub_list_index[index]][item]
 				if item == 2:
-					display_text += "\nPhone Number: " + contact_list[index][item] + "\n"
+					display_text += "\nPhone Number: " + contact_list[sub_list_index[index]][item] + "\n"
 	else:
-		display_text += 'There are no contacts to display!'
+		display_text += 'There are no contacts to display!\n NOTE: Please type 3 or more characters when searching.'
 				
 	return display_text
 
@@ -55,6 +56,35 @@ def display_all_contacts(contact_list):
 				display_text += "\nPhone Number: " + contact_list[contact][item] + "\n"
 	return display_text
 
+#Search contact by name - similary to contains in SQL
+def search_contact(contact_list,contact,type):
+	option = {'name':0, 'address':1, 'phone':2}
+	item_list = []
+	sub_list_index = []
+	begin_counter = 0
+	end_counter = len(contact)
+	
+	if len(contact) >= 3:
+		for i in range(len(contact_list)):
+			if len(contact_list[i][option[type]]) >= len(contact):
+				while len(contact_list[i][option[type]]) >= end_counter:
+					item_list.append(contact_list[i][option[type]][begin_counter:end_counter].lower())
+					
+					if contact in item_list:
+						if i not in sub_list_index:
+							sub_list_index.append(i)
+							del item_list[:]
+							break
+							
+					begin_counter = begin_counter + 1
+					end_counter = end_counter + 1	
+							
+			begin_counter = 0
+			end_counter = len(contact)
+	return sub_list_index
+
+	
+		
 #Inserts contact to the contact_list
 def add_contact(contact_list,name,address,phone_num=''):
 	#This sub_contact_list will be populated by the given name, address, and phone number
@@ -121,14 +151,16 @@ def delete_contact(contact_list,sub_list_index):
 from sys import argv
 
 script, filename = argv
-prompt = "Display [D] | Add [A] | Update [U] | Delete [E] | Exit [X] "
+prompt = "Display [D] | Search [S] | Add [A] | Exit [X] "
+sub_prompt = "Please choose what you wanted to do with the searched contacts:\nUpdate [U] | Delete [E] | Exit [X] "
 exit = 0
+sub_exit = 0
 
 #This will open the file and generate a list which will contain the sub-lists of contacts
 cont_list = generate_contact_list(filename)
 
 while exit == 0:
-	option_list = ['D','d','A','a','U','u','E','e','X','x']
+	option_list = ['D','d','S','s','A','a','U','u','E','e','X','x']
 	#Ask user for input
 	option = raw_input(prompt)
 	
@@ -137,7 +169,47 @@ while exit == 0:
 			#Contact Lists will be displayed in command prompt
 			print display_all_contacts(cont_list)
 			continue
-		elif option == option_list[2] or option == option_list[3]: #Add
+		if option == option_list[2] or option == option_list[3]: #Search:
+			type_list = {1:'Name', 2:'Address', 3:'Phone'}
+			prompt_type = "Choose what you need to search: \nName [1] | Address [2] | Phone [3] "
+			
+			try:
+				key = int(raw_input(prompt_type))
+
+				if key in type_list.keys():
+					input = raw_input(type_list[key] + ": ")
+					sub_list_index = search_contact(cont_list,input.lower(),type_list[key].lower())
+					print display_sub_lists(cont_list,sub_list_index)
+					
+					if sub_list_index:
+						sub_option = raw_input(sub_prompt)
+							
+						if sub_option in option_list:
+							if sub_option == option_list[6] or sub_option == option_list[7]: #Update
+						
+								cont_id = int(raw_input("Please choose the number you need to update: "))
+								cont_name = raw_input("Name: ")
+								cont_address = raw_input("Address: ")
+								cont_phone = raw_input("Phone Number: ")
+								
+								print update_contact(cont_list,sub_list_index[cont_id - 1],cont_name,cont_address,cont_phone)
+								print display_all_contacts(cont_list)
+								continue
+							elif sub_option == option_list[8] or sub_option == option_list[9]: #Delete
+								cont_id = int(raw_input("Please choose the number you need to delete: "))
+								print delete_contact(cont_list,sub_list_index[cont_id - 1])
+								print display_all_contacts(cont_list)
+								continue
+							elif sub_option == option_list[10] or sub_option == option_list[11]: #Exit
+								continue
+					else:
+						continue
+				else:
+					print "Please choose the following: Name [1] | Address [2] | Phone [3] "
+			except ValueError:
+				print "Please type numbers only!"
+			continue
+		elif option == option_list[4] or option == option_list[5]: #Add
 			print "Please type in your name, address, and phone number."
 			print "**Please take note that name and address is required.\n"
 			
@@ -145,15 +217,14 @@ while exit == 0:
 			cont_address = raw_input("Address: ")
 			cont_phone = raw_input("Phone Number: ")
 			
-			print add_contact(cont_list,cont_name,cont_address,cont_phone)
-			print display_all_contacts(cont_list)
-			
+			#Checks if there are existing contacts
+			if count_sub_list_index(find_sub_list_index(cont_list,cont_name,cont_address,cont_phone)) >= 1:
+				print "The contact you\'re trying to register already exists!"
+			else:
+				print add_contact(cont_list,cont_name,cont_address,cont_phone)
+				print display_all_contacts(cont_list)
 			continue
-		elif option == option_list[4] or option == option_list[5]: #Update
-			continue
-		elif option == option_list[6] or option == option_list[7]: #Delete
-			continue
-		elif option == option_list[8] or option == option_list[9]: #Exit
+		elif option == option_list[10] or option == option_list[11]: #Exit
 			sure = raw_input("Are you sure? Y/N ")
 			if not sure:
 				continue
@@ -165,6 +236,6 @@ while exit == 0:
 					continue
 	else:
 		print "\nYou can only choose from the following: \n"
-		print "Display [D] | Add [A] | Update [U] | Delete [E] | Exit [X]"
+		print "Display [D] | Search [S] | Add [A] | Update [U] | Delete [E] | Exit [X] "
 		print "===========================================================\n"
-		continue
+		continue 
