@@ -10,8 +10,20 @@ def generate_contact_list(filename):
 	for list in range(len(sub_list)):
 		main_list.append(sub_list[list].split(";"))
 	
+	while main_list[-1] == '':
+		main_list.pop(-1)
+	
 	return main_list
 
+def save_file(filename, contact_list):
+	new_txt = open(filename,'w')
+	
+	for contact in contact_list:
+		if contact != contact_list[-1]:
+			new_txt.write(";".join(contact) + "\n")
+		else:
+			new_txt.write(";".join(contact))
+	
 #Finds the indexes of the sub-list through given name, address, or phone number
 def find_sub_list_index(contact_list,name='',address='',phone_num=''):
 	index_list = [] #This list will be populated by the indexes found
@@ -83,8 +95,6 @@ def search_contact(contact_list,contact,type):
 			end_counter = len(contact)
 	return sub_list_index
 
-	
-		
 #Inserts contact to the contact_list
 def add_contact(contact_list,name,address,phone_num=''):
 	#This sub_contact_list will be populated by the given name, address, and phone number
@@ -151,8 +161,9 @@ def delete_contact(contact_list,sub_list_index):
 from sys import argv
 
 script, filename = argv
-prompt = "Display [D] | Search [S] | Add [A] | Exit [X] "
+prompt = "Display [D] | Search [S] | Add [A] | Save [V] | Exit [X] "
 sub_prompt = "Please choose what you wanted to do with the searched contacts:\nUpdate [U] | Delete [E] | Exit [X] "
+save_prompt = "Please coose if you want to overwrite or save in a new file:\nOverwrite[O] | New [N] | Exit [X] "
 exit = 0
 sub_exit = 0
 
@@ -160,7 +171,7 @@ sub_exit = 0
 cont_list = generate_contact_list(filename)
 
 while exit == 0:
-	option_list = ['D','d','S','s','A','a','U','u','E','e','X','x']
+	option_list = ['D','d','S','s','A','a','U','u','E','e','X','x','V','v','N','n','O','o']
 	#Ask user for input
 	option = raw_input(prompt)
 	
@@ -197,8 +208,11 @@ while exit == 0:
 								continue
 							elif sub_option == option_list[8] or sub_option == option_list[9]: #Delete
 								cont_id = int(raw_input("Please choose the number you need to delete: "))
-								print delete_contact(cont_list,sub_list_index[cont_id - 1])
-								print display_all_contacts(cont_list)
+								try:
+									print delete_contact(cont_list,sub_list_index[cont_id - 1])
+									print display_all_contacts(cont_list)
+								except IndexError:
+									print "Number does not exist!"
 								continue
 							elif sub_option == option_list[10] or sub_option == option_list[11]: #Exit
 								continue
@@ -224,6 +238,20 @@ while exit == 0:
 				print add_contact(cont_list,cont_name,cont_address,cont_phone)
 				print display_all_contacts(cont_list)
 			continue
+		elif option == option_list[12] or option == option_list[13]: #Save
+			save_option = raw_input(save_prompt)
+			if save_option in option_list:
+				if save_option == option_list[14] or save_option == option_list[15]: #New
+					new_filename = raw_input("Please type in a new filename")
+					save_file(new_filename + ".txt",cont_list)
+					print new_filename + ".txt was successfully saved!"
+					continue
+				elif save_option == option_list[16] or save_option == option_list[17]: #Overwrite
+					save_file(filename,cont_list)
+					print filename + "was successfully overwrited!"
+					continue
+				elif save_option == option_list[10] or save_option == option_list[11]:
+					continue
 		elif option == option_list[10] or option == option_list[11]: #Exit
 			sure = raw_input("Are you sure? Y/N ")
 			if not sure:
@@ -236,6 +264,6 @@ while exit == 0:
 					continue
 	else:
 		print "\nYou can only choose from the following: \n"
-		print "Display [D] | Search [S] | Add [A] | Update [U] | Delete [E] | Exit [X] "
+		print "Display [D] | Search [S] | Add [A] | Save [V] | Exit [X] "
 		print "===========================================================\n"
 		continue 
